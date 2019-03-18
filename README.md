@@ -96,7 +96,7 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 ### Find subpixel maxima/minima
 使用已有的像素值，subpixel的值可以被生成，方法是使用**the Taylor expansion of the image around the approximate key point**
 
-![Taylor](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/Taylor.gif)
+> ![Taylor](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/Taylor.gif)
 
 我们可以通过上面的泰勒展开式轻松的求解出该式的极值点(differentiate and eqaute to zero)
 
