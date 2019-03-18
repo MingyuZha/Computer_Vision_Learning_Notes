@@ -100,6 +100,35 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 
 我们可以通过上面的泰勒展开式轻松的求解出该式的极值点(differentiate and eqaute to zero)
 
+## Getting rid of low contrast keypoints
+通过上一步可以生成许多的关键点，这些关键点中有一些会落在edge上，或者说它们并不具备足够的对比度(contrast)。在这种情况下，它们就不适合作为特征(features)。
+### 去除low contrast特征
+去除操作很简单，我们事先设定好一个阈值，如果在DoG图像中，当前像素点的值小于阈值，就去除。
+### 去除edges
+方案是计算在keypoint处的两个**相互垂直**方向上的梯度(gradient)，基于keypoint点周围的图像，存在三种不同的情况：
+* 平摊区域(A flat region)：两个计算出来的梯度都很小
+* 边(An edge)：其中一个梯度比较大（垂直于边的方向），另一个梯度比较小（沿着边的方向）
+* 角落(A corner)：两个梯度都很大
+
+**Corners**是很好的keypoints。所以我们只想要corners。如果两个gradients都足够大，我们就标记该候选点为key point，否则的话，拒绝。
+数学上，我们通常使用```Hessian Matrix```来实现这一目的。
+
+## Keypoint orientations
+在获取了质量较高的keypoint之后，我们需要赋予每个keypoint方向(orientations)，方向的赋予使得keypoint具备**rotation invariant**特性。
+### 如何收集梯度方向
+
+![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-orientation-window.jpg)
+
+梯度值和方向可以通过如下公式来计算得到：
+
+![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-orientation-eqns.jpg)
+
+在计算得到关键点周围所有像素点的梯度方向和大小后，生成直方图。由于梯度方向有360度，我们可以分成36个bin，每个bin代表10度。
+
+![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-orientation-histogram.jpg)
+
+上图所示关键点的方向就是3（20-29度）
+> Note: 扫描窗口的大小等于高斯滤波器的窗口大小
 
 
 
