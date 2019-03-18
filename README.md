@@ -37,12 +37,19 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 从数学的角度来说，Blurring是指对图像中的像素做卷积操作，**Gaussian blur**的数学表达式为：
 
 &emsp;&emsp;&emsp;&emsp;![equation](https://latex.codecogs.com/gif.latex?L%28x%2C%20y%2C%20%5Csigma%29%20%3D%20G%28x%2C%20y%2C%20%5Csigma%29%20*%20I%28x%2C%20y%29)
+
 &emsp;&emsp;&emsp;&emsp;公式中的符号含义：
+
 &emsp;&emsp;&emsp;&emsp;* L代表模糊后的图片
+
 &emsp;&emsp;&emsp;&emsp;* G代表高斯滤波器
+
 &emsp;&emsp;&emsp;&emsp;* I代表原始输入图片
+
 &emsp;&emsp;&emsp;&emsp;* x, y是像素点坐标
+
 &emsp;&emsp;&emsp;&emsp;* ![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)是**scale parameter**.可以把它当做是模糊的程度，值越大，越模糊
+
 &emsp;&emsp;&emsp;&emsp;* *代表卷积操作
 
 4. **Amount of blurring**
@@ -61,6 +68,7 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 为了快速的生成LoG图像，我们使用到了**scale space**。我们计算两个连续scales之间的差值，或者说，the Difference of Gaussians，如图所示：
 
 ![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-dog-idea.jpg)
+
 这些DoG图片可近似等于**the Laplacian of Gaussian**，我们通过这样的方式将一个计算量十分庞大的过程化简成了一个简单的相减操作，大大提升了效率。
 
 ### The Benefits
@@ -82,12 +90,13 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 这一步完成之后，我们找到了”近似的“极大值点和极小值点，说它们是近似的，是因为真正的极大/小值点几乎不会落在某个具体的像素点上，它往往是落在像素点之间，但是我们没有办法获取像素点之间的数据。因此，我们必须通过数学计算的方法来定位这些**subpixel location**。
 
 ![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-maxima-subpixel.jpg)
+
 图中绿色的叉才是真正的极值点。
 
 ### Find subpixel maxima/minima
 使用已有的像素值，subpixel的值可以被生成，方法是使用**the Taylor expansion of the image around the approximate key point**
 
-> ![eq](https://latex.codecogs.com/gif.latex?D%28%5Cmathbf%20x%29%20%3D%20D%20&plus;%20%5Cfrac%7B%5Cpartial%20D%5ET%7D%7B%5Cpartial%5Cmathbf%7Bx%7D%7D%20%5Cmathbf%7Bx%7D&plus;%20%5Cfrac%7B1%7D%7B2%7D%5Cmathbf%7Bx%7D%5ET%5Cfrac%7B%5Cpartial%5E2D%7D%7B%5Cpartial%20x%5E2%7D%5Cmathbf%7Bx%7D)
+![eq](https://latex.codecogs.com/gif.latex?D%28%5Cmathbf%20x%29%20%3D%20D%20&plus;%20%5Cfrac%7B%5Cpartial%20D%5ET%7D%7B%5Cpartial%5Cmathbf%7Bx%7D%7D%20%5Cmathbf%7Bx%7D&plus;%20%5Cfrac%7B1%7D%7B2%7D%5Cmathbf%7Bx%7D%5ET%5Cfrac%7B%5Cpartial%5E2D%7D%7B%5Cpartial%20x%5E2%7D%5Cmathbf%7Bx%7D)
 
 我们可以通过上面的泰勒展开式轻松的求解出该式的极值点(differentiate and eqaute to zero)
 
