@@ -29,26 +29,82 @@
 由上图可见，同一列的图片是相同size的，它们共同组成了一个```octave```，上图共有4个octaves，每一个octave包含了5张图片，每张图片具有不同的```scale``` (the amount of blur)。
 
 ### The technical details
-#### Octave and Scales
+1. **Octave and Scales**
 Octaves和scales的数量取决于原始图片的大小，一般需要由用户自己定义这个数量，但是，SIFT的创造者建议使用4个Octaves和5个blur levels。
-#### The first octave
+2. **The first octave**
 如果将原始的输入图片尺寸扩大一倍并且做抗锯齿操作（by blurring it），那么算法生成的keypoints将会是原来的**四倍以上**。Keypoints越多，算法的性能越好！
-#### Blurring
+3. **Blurring**
 从数学的角度来说，Blurring是指对图像中的像素做卷积操作，**Gaussian blur**的数学表达式为：
 
-![equation](https://latex.codecogs.com/gif.latex?L%28x%2C%20y%2C%20%5Csigma%29%20%3D%20G%28x%2C%20y%2C%20%5Csigma%29%20*%20I%28x%2C%20y%29)
+&emsp;&emsp;&emsp;&emsp;![equation](https://latex.codecogs.com/gif.latex?L%28x%2C%20y%2C%20%5Csigma%29%20%3D%20G%28x%2C%20y%2C%20%5Csigma%29%20*%20I%28x%2C%20y%29)
+&emsp;&emsp;&emsp;&emsp;公式中的符号含义：
+&emsp;&emsp;&emsp;&emsp;* L代表模糊后的图片
+&emsp;&emsp;&emsp;&emsp;* G代表高斯滤波器
+&emsp;&emsp;&emsp;&emsp;* I代表原始输入图片
+&emsp;&emsp;&emsp;&emsp;* x, y是像素点坐标
+&emsp;&emsp;&emsp;&emsp;* ![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)是**scale parameter**.可以把它当做是模糊的程度，值越大，越模糊
+&emsp;&emsp;&emsp;&emsp;* *代表卷积操作
 
-公式中的符号含义：
-* L代表模糊后的图片
-* G代表高斯滤波器
-* I代表原始输入图片
-* x, y是像素点坐标
-* ![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)
-是**scale parameter**.可以把它当做是模糊的程度，值越大，越模糊
-* *代表卷积操作
+4. **Amount of blurring**
+假设在某个特定的图片中模糊程度为![](https://latex.codecogs.com/gif.latex?%5Csigma)，那么，下一张图的模糊程度就是k*![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)，k是由用户设定的常数
 
-#### Amount of blurring
-假设在某个特定的图片中模糊程度为![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)，那么，下一张图的模糊程度就是k*![](https://latex.codecogs.com/gif.latex?%5Csigma)，k是由用户设定的常数
+
+## LoG approximations
+在这一部分，我们将使用前面生成的模糊后的图片去生成另一组图片：```the Difference of Gaussians```**(DoG)**.这些DoG图片对发现图像中有益的**key points**十分有帮助。
+
+### Laplacian of Gaussian
+```The Laplacian of Gaussian``` operation的操作步骤是：先将原始图片通过高斯滤波器模糊化，然后计算图像的**second order derivatives**(也称作**laplacian**)。这步操作可以帮助定位到图中的边(edges)和角(corners)，这些边和角可以帮助发现图中的关键点信息。
+但是，二阶导对于噪声十分敏感，因此需要在求二阶导之前对图像做降噪（模糊）处理，从而使得二阶导的求解更加的稳定。
+问题在于，计算图像中所有像素位置的二阶导十分的computationally expensive，因此我们需要一条捷径。
+
+### The Con
+为了快速的生成LoG图像，我们使用到了**scale space**。我们计算两个连续scales之间的差值，或者说，the Difference of Gaussians，如图所示：
+
+![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-dog-idea.jpg)
+这些DoG图片可近似等于**the Laplacian of Gaussian**，我们通过这样的方式将一个计算量十分庞大的过程化简成了一个简单的相减操作，大大提升了效率。
+
+### The Benefits
+仅仅是Laplacian of Gaussian图像还不够，因为它们并不是**scale invariant**的，也就是说它们取决于你对图像的模糊化程度，即![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)的值
+
+## Finding Keypoints
+找到关键点分为两个步骤：
+1. Locate maxima/minima in DoG images
+2. Find subpixel maxima/minima
+
+### Locate maxma/minima in DoG images
+第一步是粗略的定位极大值和极小值，这一步很简单，只需要遍历图中的每个像素点，并将当前遍历的像素点与其邻接区域的像素点比较
+
+![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-maxima-idea.jpg)
+**X**表示当前像素点，绿色的圈表示邻接点像素点，这样的话，对当前像素点，一共需要进行26次比较。
+> 如果X位置像素点的值比其余26个像素点的值都大，或者都小，那么X就会被标记为"key point"
+
+需要注意的是**我们不会再lowermost和topmost scales中检测keypoints**，因为我们没有足够的邻接点来进行检测工作，所以直接跳过这些scales上的像素点即可。
+这一步完成之后，我们找到了”近似的“极大值点和极小值点，说它们是近似的，是因为真正的极大/小值点几乎不会落在某个具体的像素点上，它往往是落在像素点之间，但是我们没有办法获取像素点之间的数据。因此，我们必须通过数学计算的方法来定位这些**subpixel location**。
+
+![image](https://github.com/MingyuZha/Computer_Vision_Learning_Notes/raw/master/images/sift-maxima-subpixel.jpg)
+图中绿色的叉才是真正的极值点。
+
+### Find subpixel maxima/minima
+使用已有的像素值，subpixel的值可以被生成，方法是使用**the Taylor expansion of the image around the approximate key point**
+
+> ![eq](https://latex.codecogs.com/gif.latex?D%28%5Cmathbf%20x%29%20%3D%20D%20&plus;%20%5Cfrac%7B%5Cpartial%20D%5ET%7D%7B%5Cpartial%5Cmathbf%7Bx%7D%7D%20%5Cmathbf%7Bx%7D&plus;%20%5Cfrac%7B1%7D%7B2%7D%5Cmathbf%7Bx%7D%5ET%5Cfrac%7B%5Cpartial%5E2D%7D%7B%5Cpartial%20x%5E2%7D%5Cmathbf%7Bx%7D)
+
+我们可以通过上面的泰勒展开式轻松的求解出该式的极值点(differentiate and eqaute to zero)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
