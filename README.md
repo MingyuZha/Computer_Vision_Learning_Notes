@@ -35,17 +35,20 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 如果将原始的输入图片尺寸扩大一倍并且做抗锯齿操作（by blurring it），那么算法生成的keypoints将会是原来的**四倍以上**。Keypoints越多，算法的性能越好！
 #### Blurring
 从数学的角度来说，Blurring是指对图像中的像素做卷积操作，**Gaussian blur**的数学表达式为：
-![](https://latex.codecogs.com/gif.latex?L%28x%2C%20y%2C%20%5Csigma%29%20%3D%20G%28x%2C%20y%2C%20%5Csigma%29%20*%20I%28x%2C%20y%29)
+
+![equation](https://latex.codecogs.com/gif.latex?L%28x%2C%20y%2C%20%5Csigma%29%20%3D%20G%28x%2C%20y%2C%20%5Csigma%29%20*%20I%28x%2C%20y%29)
+
 公式中的符号含义：
 * L代表模糊后的图片
 * G代表高斯滤波器
 * I代表原始输入图片
 * x, y是像素点坐标
-* ![](https://latex.codecogs.com/gif.latex?%5Csigma)是**scale parameter**.可以把它当做是模糊的程度，值越大，越模糊
+* ![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)
+是**scale parameter**.可以把它当做是模糊的程度，值越大，越模糊
 * *代表卷积操作
 
 #### Amount of blurring
-假设在某个特定的图片中模糊程度为![](https://latex.codecogs.com/gif.latex?%5Csigma)，那么，下一张图的模糊程度就是k*![](https://latex.codecogs.com/gif.latex?%5Csigma)，k是由用户设定的常数
+假设在某个特定的图片中模糊程度为![sigma](https://latex.codecogs.com/gif.latex?%5Csigma)，那么，下一张图的模糊程度就是k*![](https://latex.codecogs.com/gif.latex?%5Csigma)，k是由用户设定的常数
 
 
 
