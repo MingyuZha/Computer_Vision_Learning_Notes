@@ -1,4 +1,23 @@
+
 # Computer Vision Learning Notes
+
+## 目录
+* [Computer Vision Learning Notes](#computer-vision-learning-notes)
+      * [SIFT](#sift)
+         * [Why SIFT?](#why-sift)
+      * [The scale space](#the-scale-space)
+         * [Scale spaces](#scale-spaces)
+         * [Scale spaces in SIFT](#scale-spaces-in-sift)
+         * [The technical details](#the-technical-details)
+      * [LoG approximations](#log-approximations)
+         * [Laplacian of Gaussian](#laplacian-of-gaussian)
+         * [The Con](#the-con)
+         * [The Benefits](#the-benefits)
+      * [Finding Keypoints](#finding-keypoints)
+         * [Locate maxma/minima in DoG images](#locate-maxmaminima-in-dog-images)
+         * [Find subpixel maxima/minima](#find-subpixel-maximaminima)
+         
+      
 ## SIFT
 ### Why SIFT?
 当图片存在不同的尺度(scales)以及旋转(rotations)时，简单的corner detector无法取得很好的效果，这时我们就需要使用**Scale Invariant Feature Transform**。当然，SIFT特征不仅仅是scale invariant，同样一张图片，如果改变以下一些特征仍能取得很好的结果：
