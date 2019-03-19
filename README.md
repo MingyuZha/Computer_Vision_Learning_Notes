@@ -2,20 +2,19 @@
 # Computer Vision Learning Notes
 
 ## 目录
-* [Computer Vision Learning Notes](#computer-vision-learning-notes)
-     * [SIFT](#sift)
-          * [Why SIFT?](#why-sift)
-     * [The scale space](#the-scale-space)
-          * [Scale spaces](#scale-spaces)
-          * [Scale spaces in SIFT](#scale-spaces-in-sift)
-          * [The technical details](#the-technical-details)
-     * [LoG approximations](#log-approximations)
-          * [Laplacian of Gaussian](#laplacian-of-gaussian)
-          * [The Con](#the-con)
-          * [The Benefits](#the-benefits)
-     * [Finding Keypoints](#finding-keypoints)
-          * [Locate maxma/minima in DoG images](#locate-maxmaminima-in-dog-images)
-          * [Find subpixel maxima/minima](#find-subpixel-maximaminima)
+* [SIFT](#sift)
+    * [Why SIFT?](#why-sift)
+* [The scale space](#the-scale-space)
+    * [Scale spaces](#scale-spaces)
+    * [Scale spaces in SIFT](#scale-spaces-in-sift)
+    * [The technical details](#the-technical-details)
+* [LoG approximations](#log-approximations)
+    * [Laplacian of Gaussian](#laplacian-of-gaussian)
+    * [The Con](#the-con)
+    * [The Benefits](#the-benefits)
+* [Finding Keypoints](#finding-keypoints)
+    * [Locate maxma/minima in DoG images](#locate-maxmaminima-in-dog-images)
+    * [Find subpixel maxima/minima](#find-subpixel-maximaminima)
          
       
 ## SIFT
