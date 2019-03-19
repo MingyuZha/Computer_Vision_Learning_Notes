@@ -1,5 +1,5 @@
 
-# :construction:Computer Vision Learning Notes:construction:
+# :construction: Computer Vision Learning Notes :construction:
 
 ## 目录
 * [SIFT](#sift)
