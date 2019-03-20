@@ -6,7 +6,8 @@
    * [The scale space](#the-scale-space)
    * [LoG approximations](#log-approximations)
    * [Finding Keypoints](#finding-keypoints)
-   
+* [R-CNN](#r-cnn)
+
 ## SIFT
 ### Why SIFT?
 当图片存在不同的尺度(scales)以及旋转(rotations)时，简单的corner detector无法取得很好的效果，这时我们就需要使用**Scale Invariant Feature Transform**。当然，SIFT特征不仅仅是scale invariant，同样一张图片，如果改变以下一些特征仍能取得很好的结果：
@@ -137,6 +138,9 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 
 上图所示关键点的方向就是3（20-29度）
 > Note: 扫描窗口的大小等于高斯滤波器的窗口大小
+
+## R-CNN
+
 
 
 
