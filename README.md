@@ -141,13 +141,64 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 
 ## R-CNN
 
+### Introduction
 
+R-CNN的全称是**"Region-based Convolutional Neural Networks"**，该算法主要包含了两个步骤，首先，第一个步骤是做**selective search**，它的作用是从原始的输入图像中提取出一些我们感兴趣的的"区域"，所谓感兴趣，就是"区域"中有可能包含我们需要识别/定位的object。这些我们感兴趣的"区域"有一个专有名词：**Region of Interest**，一般简写为**"RoI"**。接下来，第二个步骤就是从这些感兴趣的"区域"中通过CNN提取出特征用以后续的分类工作。
 
+![img](https://lilianweng.github.io/lil-log/assets/images/RCNN.png)
 
+### Model Workflow
 
+R-CNN的工作步骤可以被概括为以下几点：
 
+1. 预训练一个用来做图像分类的卷积神经网络，例如：VGG或者ResNet。
+2. 针对不同的图像类别，**独立地**生成RoI，每张原始输入图像生成大约2000个候选区域即可。这些候选区域有可能包含了目标物体，并且它们一般都具有不同的size。
+3. 候选区域通过**warp**操作转换成固定的size，这样一来它们就能被用作CNN的输入。
+4. 使用warped过的候选区域继续fine-tune我们的CNN网络，这时我们模型的输出一共有**K+1**类，多出来的1类代表的是背景(background)，即不包含任何我们需要识别的物体。在fine-tuning阶段，我们需要使用更小的learning rate，并且，每一个mini-batch都需要对正样本进行过采样，因为大多数候选区域都是background。
+5. 给定任何一个图像区域，经过一次forward propagation就会生成一个特征向量。这个特征向量将被用作**二分类SVM**的输入。每一个类(class)都有对应的一个binary SVM。分类的正样本是那些**IoU (intersection over union)**重叠率大于等于0.3的样本，不满足这一条件的是负样本。
+6. 为了减小定位误差，我们还需要训练一个**回归模型**来矫正预测的bounding box的位置。
 
+### Bounding Box Regression
 
+假设预测的bounding box坐标为：![eq](https://latex.codecogs.com/gif.latex?%5Cmathbf%7Bp%7D%20%3D%20%28p_x%2C%20p_y%2C%20p_w%2C%20p_h%29)，式中前两个元素代表定位框的中心点坐标，后面两个元素分别代表定位框的宽度和高度，实际的bounding box坐标为：![eq](https://latex.codecogs.com/gif.latex?%5Cmathbf%7Bg%7D%20%3D%20%28g_x%2C%20g_y%2C%20g_w%2C%20g_h%29)，回归器(regressor)被设置为学习**scale-invariant transformation** between two centers，以及**log-scale transformation** between widths and heights。所有transformation functions都以p为输入。
+
+![eq](https://latex.codecogs.com/gif.latex?%5Cbegin%7Baligned%7D%20%5Chat%7Bg%7D_x%20%26%3D%20p_w%20d_x%28%5Cmathbf%7Bp%7D%29%20&plus;%20p_x%20%5C%5C%20%5Chat%7Bg%7D_y%20%26%3D%20p_h%20d_y%28%5Cmathbf%7Bp%7D%29%20&plus;%20p_y%20%5C%5C%20%5Chat%7Bg%7D_w%20%26%3D%20p_w%20%5Cexp%28%7Bd_w%28%5Cmathbf%7Bp%7D%29%7D%29%20%5C%5C%20%5Chat%7Bg%7D_h%20%26%3D%20p_h%20%5Cexp%28%7Bd_h%28%5Cmathbf%7Bp%7D%29%7D%29%20%5Cend%7Baligned%7D)
+
+![img](https://lilianweng.github.io/lil-log/assets/images/RCNN-bbox-regression.png)
+
+应用以上变换的一个显著的好处在于，所有的定位框矫正方程，![eq](https://latex.codecogs.com/gif.latex?d_i%28%5Cmathbf%7Bp%7D%29)，![eq](https://latex.codecogs.com/gif.latex?i%20%5Cin%20%5C%7B%20x%2C%20y%2C%20w%2C%20h%20%5C%7D)，可以接受实数范围内的任意值作为输入。它们的学习目标是：
+
+![eq](https://latex.codecogs.com/gif.latex?%5Cbegin%7Baligned%7D%20t_x%20%26%3D%20%28g_x%20-%20p_x%29%20/%20p_w%20%5C%5C%20t_y%20%26%3D%20%28g_y%20-%20p_y%29%20/%20p_h%20%5C%5C%20t_w%20%26%3D%20%5Clog%28g_w/p_w%29%20%5C%5C%20t_h%20%26%3D%20%5Clog%28g_h/p_h%29%20%5Cend%7Baligned%7D)
+
+一个标准的回归模型可以通过最小化SSE误差来优化求解：
+
+![eq](https://latex.codecogs.com/gif.latex?%5Cmathcal%7BL%7D_%5Ctext%7Breg%7D%20%3D%20%5Csum_%7Bi%20%5Cin%20%5C%7Bx%2C%20y%2C%20w%2C%20h%5C%7D%7D%20%28t_i%20-%20d_i%28%5Cmathbf%7Bp%7D%29%29%5E2%20&plus;%20%5Clambda%20%5C%7C%5Cmathbf%7Bw%7D%5C%7C%5E2)
+
+这里的正则化项十分的重要，在原始的R-CNN论文中作者通过**cross-validation**的方法来挑选最优的lambda取值。需要值得注意的是，不是所有预测的定位框都有对应的ground truth定位框。例如，如果我们选择的区域与目标物没有任何重叠，那么我们其实就没必要去运行bbox回归模型。在这里，只有选定区域与最近的ground truth定位框重叠区域(IoU)大于等于0.6时，预测定位框才会被用来训练bbox回归模型。
+
+### Common Tricks
+
+以下是一些经常被用在R-CNN和其他一些鉴别模型中的小技巧。
+
+#### Non-Maximum Suppression
+
+对于同一个物体，有很大的可能我们的模型会找到多个可能的定位框。**Non-maximum Suppression**帮助我们的模型不会重复检测同一个目标物体。具体的实现方法为：当我们得到一系列对同一目标物体的匹配的定位框以后，首先根据他们的confidence score进行排序，舍弃那些低置信度的定位框。如果还有剩余的定位框，重复以下操作：贪婪地选取置信度最高的定位框，舍弃那些与先前选取的定位框重叠率(IoU)大于0.5的定位框。
+
+![img](https://lilianweng.github.io/lil-log/assets/images/non-max-suppression.png)
+
+#### Hard Negative Mining
+
+我们认为不包含目标物体的定位框为负样本。不是所有的负样本都一样难被识别出来。例如，如果某个区域全是背景，那么它很容易就可以别识别出是负样本，但是如果定位框中包含一些奇奇怪怪的噪声纹理，或者包含了一部分object，那么它们就比较难被识别出是负样本，**"hard negative"**。
+
+那些**hard negative examples**很容易就被误分类。因此，我们在训练时就显式(explicitly)找出那些false positive样本，并将它们包含进训练数据以提升分类器的精度。
+
+### Speed Bottleneck
+
+纵观R-CNN的学习步骤，我们可以轻易的发现训练一个R-CNN模型是十分耗时的，因为以下几个步骤包含了大量的计算和处理工作：
+
+* 对每一张输入图像，运行selective search来提出2000个候选区域
+* 对每一个候选区域生成CNN特征向量 (N images * 2000)
+* 整个过程包含了**三个独立**的模型，并且模型之间没有太多可以共享的计算：1. 用以图像分类和特征提取的卷积神经网络；2. 位于顶层的SVM分类器，来识别目标object；3. 用于估计定位框的回归模型。
 
 
 
