@@ -7,6 +7,13 @@
    * [LoG approximations](#log-approximations)
    * [Finding Keypoints](#finding-keypoints)
 * [R-CNN](#r-cnn)
+   * [Introduction](#introduction)
+   * [Model Workflow](#model-workflow)
+   * [Bounding Box Regression](#bounding-box-regression)
+   * [Common Tricks](#common-tricks)
+       * [Non-Maximum Suppression](#non-maximum-suppression)
+       * [Hard Negative Mining](#hard-negative-mining)
+   * [Speed Bottleneck](#speed-bottleneck)
 
 ## SIFT
 ### Why SIFT?
