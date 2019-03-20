@@ -150,7 +150,7 @@ Octaves和scales的数量取决于原始图片的大小，一般需要由用户�
 
 ### Introduction
 
-R-CNN的全称是**"Region-based Convolutional Neural Networks"**，该算法主要包含了两个步骤，首先，第一个步骤是做**selective search**，它的作用是从原始的输入图像中提取出一些我们感兴趣的的"区域"，所谓感兴趣，就是"区域"中有可能包含我们需要识别/定位的object。这些我们感兴趣的"区域"有一个专有名词：**Region of Interest**，一般简写为**"RoI"**。接下来，第二个步骤就是从这些感兴趣的"区域"中通过CNN提取出特征用以后续的分类工作。
+R-CNN的全称是**Region-based Convolutional Neural Networks**，该算法主要包含了两个步骤，首先，第一个步骤是做**selective search**，它的作用是从原始的输入图像中提取出一些我们感兴趣的的"区域"，所谓感兴趣，就是"区域"中有可能包含我们需要识别/定位的object。这些我们感兴趣的"区域"有一个专有名词：**Region of Interest**，一般简写为**RoI**。接下来，第二个步骤就是从这些感兴趣的"区域"中通过CNN提取出特征用以后续的分类工作。
 
 ![img](https://lilianweng.github.io/lil-log/assets/images/RCNN.png)
 
