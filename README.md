@@ -168,12 +168,12 @@ R-CNN的工作步骤可以被概括为以下几点：
 ### Bounding Box Regression
 
 假设预测的bounding box坐标为：![eq](https://latex.codecogs.com/gif.latex?%5Cmathbf%7Bp%7D%20%3D%20%28p_x%2C%20p_y%2C%20p_w%2C%20p_h%29)，式中前两个元素代表定位框的中心点坐标，后面两个元素分别代表定位框的宽度和高度，实际的bounding box坐标为：![eq](https://latex.codecogs.com/gif.latex?%5Cmathbf%7Bg%7D%20%3D%20%28g_x%2C%20g_y%2C%20g_w%2C%20g_h%29)，回归器(regressor)被设置为学习**scale-invariant transformation** between two centers，以及**log-scale transformation** between widths and heights。所有transformation functions都以p为输入。
-
 ![eq](https://latex.codecogs.com/gif.latex?%5Cbegin%7Baligned%7D%20%5Chat%7Bg%7D_x%20%26%3D%20p_w%20d_x%28%5Cmathbf%7Bp%7D%29%20&plus;%20p_x%20%5C%5C%20%5Chat%7Bg%7D_y%20%26%3D%20p_h%20d_y%28%5Cmathbf%7Bp%7D%29%20&plus;%20p_y%20%5C%5C%20%5Chat%7Bg%7D_w%20%26%3D%20p_w%20%5Cexp%28%7Bd_w%28%5Cmathbf%7Bp%7D%29%7D%29%20%5C%5C%20%5Chat%7Bg%7D_h%20%26%3D%20p_h%20%5Cexp%28%7Bd_h%28%5Cmathbf%7Bp%7D%29%7D%29%20%5Cend%7Baligned%7D)
-
 ![img](https://lilianweng.github.io/lil-log/assets/images/RCNN-bbox-regression.png)
 
-应用以上变换的一个显著的好处在于，所有的定位框矫正方程，![eq](https://latex.codecogs.com/gif.latex?d_i%28%5Cmathbf%7Bp%7D%29)，![eq](https://latex.codecogs.com/gif.latex?i%20%5Cin%20%5C%7B%20x%2C%20y%2C%20w%2C%20h%20%5C%7D)，可以接受实数范围内的任意值作为输入。它们的学习目标是：
+应用以上变换的一个显著的好处在于，所有的定位框矫正方程，![eq](https://latex.codecogs.com/gif.latex?d_i%28%5Cmathbf%7Bp%7D%29)
+，![eq](https://latex.codecogs.com/gif.latex?i%20%5Cin%20%5C%7B%20x%2C%20y%2C%20w%2C%20h%20%5C%7D)
+，可以接受实数范围内的任意值作为输入。它们的学习目标是：
 
 ![eq](https://latex.codecogs.com/gif.latex?%5Cbegin%7Baligned%7D%20t_x%20%26%3D%20%28g_x%20-%20p_x%29%20/%20p_w%20%5C%5C%20t_y%20%26%3D%20%28g_y%20-%20p_y%29%20/%20p_h%20%5C%5C%20t_w%20%26%3D%20%5Clog%28g_w/p_w%29%20%5C%5C%20t_h%20%26%3D%20%5Clog%28g_h/p_h%29%20%5Cend%7Baligned%7D)
 
