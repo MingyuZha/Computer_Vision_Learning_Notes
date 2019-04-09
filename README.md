@@ -156,14 +156,16 @@ R-CNN的全称是**Region-based Convolutional Neural Networks**，该算法主�
 
 ### Model Workflow
 
+![img](https://images2015.cnblogs.com/blog/1093303/201705/1093303-20170504113229570-69371857.png)
+
 R-CNN的工作步骤可以被概括为以下几点：
 
 1. 预训练一个用来做图像分类的卷积神经网络，例如：VGG或者ResNet。
 2. 针对不同的图像类别，**独立地**生成RoI，每张原始输入图像生成大约2000个候选区域即可。这些候选区域有可能包含了目标物体，并且它们一般都具有不同的size。
 3. 候选区域通过**warp**操作转换成固定的size，这样一来它们就能被用作CNN的输入。
-4. 使用warped过的候选区域继续fine-tune我们的CNN网络，这时我们模型的输出一共有**K+1**类，多出来的1类代表的是背景(background)，即不包含任何我们需要识别的物体。在fine-tuning阶段，我们需要使用更小的learning rate，并且，每一个mini-batch都需要对正样本进行过采样，因为大多数候选区域都是background。
-5. 给定任何一个图像区域，经过一次forward propagation就会生成一个特征向量。这个特征向量将被用作**二分类SVM**的输入。每一个类(class)都有对应的一个binary SVM。分类的正样本是那些**IoU (intersection over union)**重叠率大于等于0.3的样本，不满足这一条件的是负样本。
-6. 为了减小定位误差，我们还需要训练一个**回归模型**来矫正预测的bounding box的位置。
+4. 使用warped过的候选区域继续fine-tune我们的CNN网络，这时我们模型的输出一共有**K+1**类，多出来的1类代表的是背景(background)，即不包含任何我们需要识别的物体。在fine-tuning阶段，我们需要使用更小的learning rate，并且，每一个mini-batch都需要对正样本进行过采样，因为大多数候选区域都是background。![img](https://images2015.cnblogs.com/blog/1093303/201705/1093303-20170504113302195-1032285194.png)
+5. 给定任何一个图像区域，经过一次forward propagation就会生成一个特征向量。这个特征向量将被用作**二分类SVM**的输入。每一个类(class)都有对应的一个binary SVM。分类的正样本是那些**IoU (intersection over union)**重叠率大于等于0.3的样本，不满足这一条件的是负样本。![img](https://images2015.cnblogs.com/blog/1093303/201705/1093303-20170504113349351-169304797.png)
+6. 为了减小定位误差，我们还需要训练一个**回归模型**来矫正预测的bounding box的位置。![img](https://images2015.cnblogs.com/blog/1093303/201705/1093303-20170504113412351-143526289.png)
 
 ### Bounding Box Regression
 
