@@ -210,7 +210,18 @@ R-CNN的工作步骤可以被概括为以下几点：
 * 对每一个候选区域生成CNN特征向量 (N images * 2000)
 * 整个过程包含了**三个独立**的模型，并且模型之间没有太多可以共享的计算：1. 用以图像分类和特征提取的卷积神经网络；2. 位于顶层的SVM分类器，来识别目标object；3. 用于估计定位框的回归模型。
 
+## Classic CNN Architectures
 
+### AlexNet
+
+![img](https://neurohive.io/wp-content/uploads/2018/10/AlexNet-1.png)
+
+**模型结构：**5\*卷积层+3\*全连接层
+
+**Some of highlights:**
+
+* AlexNet使用了ReLU作为激活函数，而非sigmoid或tanh，从而提升了模型的收敛速率
+* AlexNet使用了Dropout来防止overfitting，这一操作比使用正则化项的训练速率慢
 
 
 
