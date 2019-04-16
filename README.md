@@ -223,7 +223,18 @@ R-CNN的工作步骤可以被概括为以下几点：
 * AlexNet使用了ReLU作为激活函数，而非sigmoid或tanh，从而提升了模型的收敛速率
 * AlexNet使用了Dropout来防止overfitting，这一操作比使用正则化项的训练速率慢
 
+### VGG-19
 
+![img](https://neurohive.io/wp-content/uploads/2018/11/vgg16.png)
+
+**模型结构：**16\*conv layers + 3\*FC layers
+
+它相较于AlexNet的改善在于将大尺寸的滤波模板替换成了3\*3的小尺寸滤波模板，从而简化了模型。
+
+**弊端：**
+
+* 训练慢
+* 模型权重多，使得部署一个VGG-net十分的麻烦，你需要考虑到磁盘空间、带宽等因素。
 
 
 
